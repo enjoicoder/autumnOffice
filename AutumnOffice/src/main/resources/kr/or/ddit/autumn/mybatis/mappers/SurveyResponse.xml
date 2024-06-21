@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.autumn.groupware.survey.dao.SurveyResponseDAO">
+	<insert id="insertSurveyResponse" parameterType="SurveyResponseVO">
+		INSERT INTO SUR_RES
+		(
+				SURRES_NO
+			,	SURINV_NO
+			,	EMP_ID
+			,	SURRES_CHOFIRST
+			,	SURRES_CHOSECOND
+			,	SURRES_CHOTHIRD
+			,	SURRES_CHOFOUR
+			,	SURRES_CHOFIVE
+			,	SURRES_ESSAY
+			,	SURRES_INSDAT
+		)VALUES(
+				SURRES_SEQ.nextval
+			,	#{surinvNo, jdbcType=NUMERIC}
+			,	#{empId, jdbcType=VARCHAR}
+			,	#{surresChofirst, jdbcType=NUMERIC}	
+			,	#{surresChosecond, jdbcType=NUMERIC}	
+			,	#{surresChothird, jdbcType=NUMERIC}	
+			,	#{surresChofour, jdbcType=NUMERIC}	
+			,	#{surresChofive, jdbcType=NUMERIC}	
+			,	#{surresEssay, jdbcType=VARCHAR}	
+			,	SYSDATE
+		)
+	</insert>
+	
+	<select id="idCheck" parameterType="SurveyResponseVO" resultType="int">
+		<![CDATA[
+		SELECT COUNT(*) FROM SUR_RES WHERE EMP_ID = #{empId} AND SURINV_NO = #{surinvNo}
+		]]>
+	</select>
+	
+	<select id="selectSurveyResponse" parameterType="int" resultType="SurveyResponseVO">
+		SELECT DISTINCT 
+			SURINV_FIRST
+			, SURINV_SECOND
+			, SURINV_THIRD
+			, SURINV_FOUR
+			, SURINV_FIVE
+			, C.SUR_TITLE
+			, C.SUR_PURPOSE
+			, C.SUR_GUIDE
+			, TO_CHAR(C.SUR_SDATE, 'YYYY-MM-DD') SUR_SDATE
+			, TO_CHAR(C.SUR_EDATE, 'YYYY-MM-DD') SUR_EDATE
+		    ,	(SELECT COUNT(SURRES_CHOFIRST) FROM SUR_RES A LEFT OUTER JOIN SUR_INV B ON A.SURINV_NO = B.SURINV_NO WHERE A.SURINV_NO = #{surinvNo}) SURRES_CHOFIRST
+		    ,	(SELECT COUNT(SURRES_CHOSECOND) FROM SUR_RES A LEFT OUTER JOIN SUR_INV B ON A.SURINV_NO = B.SURINV_NO WHERE A.SURINV_NO = #{surinvNo}) SURRES_CHOSECOND
+		    ,	(SELECT COUNT(SURRES_CHOTHIRD) FROM SUR_RES A LEFT OUTER JOIN SUR_INV B ON A.SURINV_NO = B.SURINV_NO WHERE A.SURINV_NO = #{surinvNo}) SURRES_CHOTHIRD
+		    ,	(SELECT COUNT(SURRES_CHOFOUR) FROM SUR_RES A LEFT OUTER JOIN SUR_INV B ON A.SURINV_NO = B.SURINV_NO WHERE A.SURINV_NO = #{surinvNo}) SURRES_CHOFOUR
+		    ,	(SELECT COUNT(SURRES_CHOFIVE) FROM SUR_RES A LEFT OUTER JOIN SUR_INV B ON A.SURINV_NO = B.SURINV_NO WHERE A.SURINV_NO = #{surinvNo}) SURRES_CHOFIVE
+		FROM SUR_RES A LEFT OUTER JOIN SUR_INV B
+		ON A.SURINV_NO = B.SURINV_NO
+		LEFT OUTER JOIN SURVEY C
+		ON B.SUR_NO = C.SUR_NO
+		WHERE A.SURINV_NO = #{surinvNo}
+	</select>
+	
+</mapper>
